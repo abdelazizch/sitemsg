@@ -1,0 +1,9 @@
+# Dossiers de photos brutes (RAW/JPG non utilisées sur le site, trop volumineux pour le dépôt)
+assets/img/100CANON/
+assets/img/101D5100/
+assets/img/102D5100/
+assets/img/im/
+assets/img/ok/
+
+# Fichiers temporaires
+*.rar
