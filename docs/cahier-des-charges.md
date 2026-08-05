@@ -13,12 +13,17 @@
 | Raison sociale (officielle) | École Privée de Formation Professionnelle Le Message | Confirmé par le client |
 | Nom court / communication et interface site | École Le Message | Confirmé par le client |
 | Ville | Guercif, Maroc | Confirmé |
-| Adresse | Boulevard Mohammed V, Rue Lot Rif 1, Guercif, Maroc | Confirmé par le client |
-| Code postal | — | **[À CONFIRMER]** — ne pas inventer |
+| Adresse | Boulevard Mohammed V, Rue Lot Rif 1, 35100 Guercif, Maroc | Confirmé par le client |
+| Code postal | 35100 | Confirmé par le client |
 | Téléphone fixe | +212 535 676 525 | Confirmé par le client |
 | Téléphone mobile / WhatsApp | +212 654 855 724 | Confirmé par le client |
-| Email de contact | — | **[À CONFIRMER]** — ne pas inventer |
+| Email de contact | ecolemessage@gmail.com | Confirmé par le client |
 | Horaires d'ouverture | — | **[À CONFIRMER]** |
+| Forme juridique | SARL | Confirmé par le client |
+| Registre du Commerce (RC) | — | **[À CONFIRMER]** — client a choisi de laisser vide pour l'instant |
+| ICE | — | **[À CONFIRMER]** — client a choisi de laisser vide pour l'instant |
+| Responsable de publication | Le gérant de l'École Le Message | Confirmé par le client (fonction, pas de nom donné) |
+| Nom de domaine — registrar | Namecheap, Inc. | Confirmé par le client |
 | Domaine officiel | `https://ecolemessage.com/` | Confirmé par le client |
 | Facebook | https://www.facebook.com/ecolemsg11122 | Conservé — validité à recontrôler une dernière fois avant mise en production |
 | Instagram | https://www.instagram.com/ecole_alrrissala/ | Conservé — validité à recontrôler une dernière fois avant mise en production |
