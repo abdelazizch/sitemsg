@@ -132,8 +132,11 @@
             <option value="">Veuillez sélectionner une option</option>
             <option value="TSDI">TSDI — Développement Informatique</option>
             <option value="TSGE">TSGE — Gestion des Entreprises</option>
+            <option value="PRE-AS">Pré-inscription Aide-Soignant (Pôle Santé, prochainement disponible)</option>
           </select>
         </div>
+
+        <p class="a-confirmer" id="preInscriptionNote" style="display:none; font-size:0.9rem;">La filière Aide-Soignant n'est pas encore ouverte : aucune autorisation officielle n'a été obtenue à ce jour. Il ne s'agit pas d'une inscription ferme mais d'une demande d'intérêt — nous vous contacterons dès l'ouverture du pôle Santé, sous réserve d'obtention des autorisations nécessaires.</p>
 
         <p style="font-size:0.9rem; color:var(--gris-chaud);">Si vous êtes accepté(e), vous recevrez un message WhatsApp vous indiquant les documents requis à apporter à l'école.</p>
         <p style="font-size:0.9rem; color:var(--gris-chaud);" lang="ar" dir="rtl">إذا تم قبولك، ستتلقى رسالة على الواتساب تخبرك بالمستندات المطلوبة التي يجب أن تحضرها إلى المدرسة.</p>
@@ -199,6 +202,12 @@
   menuToggle.addEventListener('click', function () {
     var ouvert = menuMobile.classList.toggle('ouvert');
     menuToggle.setAttribute('aria-expanded', ouvert);
+  });
+
+  var specialite = document.getElementById('specialite');
+  var preInscriptionNote = document.getElementById('preInscriptionNote');
+  specialite.addEventListener('change', function () {
+    preInscriptionNote.style.display = specialite.value === 'PRE-AS' ? 'block' : 'none';
   });
 </script>
 

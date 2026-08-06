@@ -4,13 +4,21 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGO_BASE64 = fs.readFileSync(path.join(__dirname, 'assets', 'logo.png')).toString('base64');
+const ARABIC_FONT_BASE64 = fs
+  .readFileSync(path.join(__dirname, 'assets', 'NotoNaskhArabic-Regular.ttf'))
+  .toString('base64');
 
 const BASE_STYLE = `
+  @font-face {
+    font-family: "Noto Naskh Arabic";
+    src: url(data:font/ttf;base64,${ARABIC_FONT_BASE64}) format("truetype");
+    font-weight: 100 900;
+  }
   @page { margin: 0; }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+    font-family: "Liberation Sans", Arial, sans-serif;
     color: #141312;
     font-size: 13px;
   }
@@ -168,6 +176,7 @@ export function buildAdmissionHtml(f) {
 
   const isTsdi = f.specialite === 'TSDI';
   const isTsge = f.specialite === 'TSGE';
+  const isPreAS = f.specialite === 'PRE-AS';
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -196,7 +205,12 @@ export function buildAdmissionHtml(f) {
         <span>Gestion d'Entreprise (TSGE)</span>
         <span class="case ${isTsge ? 'pleine' : ''}">${isTsge ? '&#10003;' : ''}</span>
       </div>
+      <div class="filiere ${isPreAS ? 'coche' : ''}">
+        <span>Pré-inscription Aide-Soignant (Pôle Santé — prochainement disponible)</span>
+        <span class="case ${isPreAS ? 'pleine' : ''}">${isPreAS ? '&#10003;' : ''}</span>
+      </div>
     </div>
+    ${isPreAS ? '<p class="meta">Rappel : la filière Aide-Soignant n\'est pas encore ouverte (autorisation en attente). Il s\'agit d\'une demande d\'intérêt, pas d\'une inscription ferme.</p>' : ''}
   </div>
   ${footerHtml()}
 </body>
