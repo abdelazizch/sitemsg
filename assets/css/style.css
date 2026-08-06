@@ -695,6 +695,12 @@ img {
   display: block;
 }
 
+@media (max-width: 480px) {
+  .map-frame iframe {
+    height: 260px;
+  }
+}
+
 /* Footer */
 .site-footer {
   background: var(--noir);
