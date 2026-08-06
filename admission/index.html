@@ -11,6 +11,11 @@
 <meta property="og:description" content="Formulaire d'admission aux formations TSDI et TSGE de l'École Le Message à Guercif.">
 <meta property="og:url" content="https://ecolemessage.com/admission/">
 <meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://ecolemessage.com/assets/img/site/hero-promo.webp">
+<meta property="og:image:width" content="1600">
+<meta property="og:image:height" content="1200">
+<meta property="og:image:type" content="image/webp">
+<meta name="twitter:image" content="https://ecolemessage.com/assets/img/site/hero-promo.webp">
 <link rel="icon" type="image/png" href="/assets/img/logo-noir.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,7 +84,12 @@
   <section class="section confiance">
     <div class="container" style="max-width: 680px;">
 
-      <form class="form-contact" id="formulaireAdmission" novalidate>
+      <form class="form-contact" id="formulaireAdmission" action="https://formsubmit.co/ecolemessage@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="Nouvelle demande d'inscription — site École Le Message">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="true">
+        <input type="hidden" name="_next" value="https://ecolemessage.com/admission/merci/">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <div class="champ">
           <label for="nom">Nom <span style="font-weight:400; color:var(--gris-chaud);" lang="ar" dir="rtl">/ الاسم العائلي</span></label>
           <input type="text" id="nom" name="nom" required autocomplete="family-name">
@@ -133,7 +143,6 @@
         <p style="font-size:0.9rem; color:var(--gris-chaud);" lang="ar" dir="rtl">إذا تم قبولك، ستتلقى رسالة على الواتساب تخبرك بالمستندات المطلوبة التي يجب أن تحضرها إلى المدرسة.</p>
 
         <button class="btn btn-or" type="submit">Envoyer ma demande d'inscription</button>
-        <p class="a-confirmer" id="admissionNote" style="margin-top:1rem;">Ce formulaire n'est pas encore connecté à un service d'envoi — en attendant, contactez-nous directement par téléphone ou WhatsApp pour finaliser votre inscription.</p>
       </form>
     </div>
   </section>
@@ -194,12 +203,6 @@
   menuToggle.addEventListener('click', function () {
     var ouvert = menuMobile.classList.toggle('ouvert');
     menuToggle.setAttribute('aria-expanded', ouvert);
-  });
-
-  var formulaire = document.getElementById('formulaireAdmission');
-  formulaire.addEventListener('submit', function (e) {
-    e.preventDefault();
-    document.getElementById('admissionNote').textContent = "Ce formulaire n'est pas encore connecté à un service d'envoi. Merci de nous contacter directement par téléphone ou WhatsApp pour finaliser votre inscription.";
   });
 </script>
 
