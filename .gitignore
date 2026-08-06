@@ -8,3 +8,7 @@ assets/img/ok/
 # Fichiers temporaires
 *.rar
 .claude/
+
+# Backend API
+server/node_modules/
+server/.env

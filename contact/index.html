@@ -167,11 +167,7 @@
         <h2 id="formulaire-titre">Envoyer un message</h2>
       </div>
 
-      <form class="form-contact" id="formulaireContact" action="https://formsubmit.co/ecolelemessage@gmail.com" method="POST">
-        <input type="hidden" name="_subject" value="Nouveau message — site École Le Message">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="true">
-        <input type="hidden" name="_next" value="https://ecolemessage.com/contact/merci/">
+      <form class="form-contact" id="formulaireContact" action="/api/contact" method="POST">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <div class="champ">
           <label for="nom">Nom complet</label>
