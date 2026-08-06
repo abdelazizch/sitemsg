@@ -1,10 +1,21 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { renderPdf } from './render.js';
 import { buildAdmissionHtml, buildContactHtml } from './templates.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
+
+function formLimiter(redirectTo) {
+  return rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => res.redirect(303, `${redirectTo}?erreur=limite`),
+  });
+}
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const TO_EMAIL = process.env.TO_EMAIL || 'ecolelemessage@gmail.com';
@@ -36,7 +47,7 @@ async function sendEmail({ subject, pdfBuffer, filename }) {
   }
 }
 
-app.post('/api/contact', async (req, res) => {
+app.post('/api/contact', formLimiter('/contact/'), async (req, res) => {
   try {
     if (req.body._honey) return res.redirect(303, '/contact/merci/');
     const html = buildContactHtml(req.body);
@@ -49,11 +60,11 @@ app.post('/api/contact', async (req, res) => {
     res.redirect(303, '/contact/merci/');
   } catch (err) {
     console.error(err);
-    res.redirect(303, '/contact/?erreur=1');
+    res.redirect(303, '/contact/?erreur=envoi');
   }
 });
 
-app.post('/api/admission', async (req, res) => {
+app.post('/api/admission', formLimiter('/admission/'), async (req, res) => {
   try {
     if (req.body._honey) return res.redirect(303, '/admission/merci/');
     const html = buildAdmissionHtml(req.body);
@@ -66,7 +77,7 @@ app.post('/api/admission', async (req, res) => {
     res.redirect(303, '/admission/merci/');
   } catch (err) {
     console.error(err);
-    res.redirect(303, '/admission/?erreur=1');
+    res.redirect(303, '/admission/?erreur=envoi');
   }
 });
 

@@ -167,6 +167,8 @@
         <h2 id="formulaire-titre">Envoyer un message</h2>
       </div>
 
+      <p id="formulaireErreur" class="a-confirmer" style="display:none; margin-bottom:1.5rem;"></p>
+
       <form class="form-contact" id="formulaireContact" action="/api/contact" method="POST">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
         <div class="champ">
@@ -256,6 +258,17 @@
     var ouvert = menuMobile.classList.toggle('ouvert');
     menuToggle.setAttribute('aria-expanded', ouvert);
   });
+
+  var erreur = new URLSearchParams(window.location.search).get('erreur');
+  if (erreur) {
+    var messages = {
+      limite: "Trop d'envois depuis cette connexion en peu de temps. Merci de réessayer plus tard, ou de nous contacter directement par téléphone ou WhatsApp.",
+      envoi: "Une erreur est survenue lors de l'envoi de votre message. Merci de réessayer, ou de nous contacter directement par téléphone ou WhatsApp.",
+    };
+    var boite = document.getElementById('formulaireErreur');
+    boite.textContent = messages[erreur] || messages.envoi;
+    boite.style.display = 'block';
+  }
 </script>
 
 </body>
