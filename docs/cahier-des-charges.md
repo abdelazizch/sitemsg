@@ -17,7 +17,7 @@
 | Code postal | 35100 | Confirmé par le client |
 | Téléphone fixe | +212 535 676 525 | Confirmé par le client |
 | Téléphone mobile / WhatsApp | +212 654 855 724 | Confirmé par le client |
-| Email de contact | ecolemessage@gmail.com | Confirmé par le client |
+| Email de contact | ecolelemessage@gmail.com | Confirmé par le client |
 | Horaires d'ouverture | — | **[À CONFIRMER]** |
 | Forme juridique | SARL | Confirmé par le client |
 | Registre du Commerce (RC) | — | **[À CONFIRMER]** — client a choisi de laisser vide pour l'instant |
