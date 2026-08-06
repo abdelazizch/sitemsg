@@ -1,8 +1,9 @@
-FROM node:20-alpine
+FROM mcr.microsoft.com/playwright:v1.47.0-jammy
 WORKDIR /app
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 COPY package.json ./
 RUN npm install --omit=dev
-COPY server.js ./
+COPY . .
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node", "server.js"]
