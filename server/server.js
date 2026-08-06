@@ -5,7 +5,11 @@ import { buildAdmissionHtml, buildContactHtml } from './templates.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
+
+function clientIp(req) {
+  return req.headers['cf-connecting-ip'] || req.ip;
+}
 
 function formLimiter(redirectTo) {
   return rateLimit({
@@ -13,6 +17,7 @@ function formLimiter(redirectTo) {
     max: 5,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: clientIp,
     handler: (req, res) => res.redirect(303, `${redirectTo}?erreur=limite`),
   });
 }
