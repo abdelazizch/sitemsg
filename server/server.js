@@ -2,10 +2,23 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { renderPdf } from './render.js';
 import { buildAdmissionHtml, buildContactHtml } from './templates.js';
+import { db, UPLOAD_DIR } from './db.js';
+import { sessionMiddleware } from './auth.js';
+import actualitesAdmin from './actualites-admin.js';
+import actualitesPublic from './actualites-public.js';
+import { sitemapHandler } from './sitemap.js';
+import { feedHandler } from './feed.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1);
+app.use(sessionMiddleware());
+app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', immutable: true }));
+
+app.get('/sitemap.xml', sitemapHandler(db));
+app.get('/actualites/feed.xml', feedHandler(db));
+app.use(actualitesAdmin);
+app.use(actualitesPublic);
 
 function clientIp(req) {
   return req.headers['cf-connecting-ip'] || req.ip;
