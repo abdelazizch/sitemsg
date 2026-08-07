@@ -130,8 +130,8 @@ ${robots ? `<meta name="robots" content="${robots}">\n` : ''}<link rel="canonica
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:url" content="${canonical}">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="${ogImage || 'https://ecolemessage.com/assets/img/site/hero-promo.webp'}">
-<meta name="twitter:image" content="${ogImage || 'https://ecolemessage.com/assets/img/site/hero-promo.webp'}">
+<meta property="og:image" content="${ogImage || 'https://ecolemessage.com/assets/img/site/ok.webp'}">
+<meta name="twitter:image" content="${ogImage || 'https://ecolemessage.com/assets/img/site/ok.webp'}">
 <link rel="icon" type="image/png" href="/assets/img/logo-noir.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
