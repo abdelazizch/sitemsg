@@ -1,6 +1,7 @@
 import express from 'express';
 import { db } from './db.js';
-import { requireAdmin, verifyAdminCredentials, issueCsrfToken, verifyCsrf, loginLimiter } from './auth.js';
+import { requireAdmin, requireRole, verifyAdminCredentials, issueCsrfToken, verifyCsrf, loginLimiter, hashPassword } from './auth.js';
+import bcrypt from 'bcryptjs';
 import { sanitizeArticleHtml, htmlToPlainText } from './sanitize.js';
 import { slugify, uniqueSlug } from './slug.js';
 import { upload, processImage, buildSrcset, largestVariant } from './uploads.js';
@@ -89,9 +90,11 @@ router.get('/admin/login', (req, res) => {
 
 router.post('/admin/login', loginLimiter, verifyCsrf, (req, res) => {
   const { username, password } = req.body;
-  if (verifyAdminCredentials(username, password)) {
-    req.session.admin = username;
-    logAction(db, { user: username, action: 'login', ip: clientIp(req) });
+  const user = verifyAdminCredentials(username, password);
+  if (user) {
+    req.session.admin = user.username;
+    req.session.role = user.role;
+    logAction(db, { user: user.username, action: 'login', ip: clientIp(req) });
     return res.redirect(302, '/admin/');
   }
   res.redirect(302, '/admin/login?erreur=1');
@@ -144,6 +147,8 @@ router.get('/admin/', requireAdmin, (req, res) => {
         <h1>Actualités — Administration</h1>
         <div>
           <a class="btn btn-outline-noir" href="/admin/journal">Journal</a>
+          ${req.session.role === 'admin' ? '<a class="btn btn-outline-noir" href="/admin/utilisateurs">Utilisateurs</a>' : ''}
+          <a class="btn btn-outline-noir" href="/admin/mot-de-passe">Mon mot de passe</a>
           <a class="btn btn-or" href="/admin/articles/new">+ Nouvel article</a>
           <form style="display:inline" method="POST" action="/admin/logout">${csrfField(token)}<button class="btn-link" type="submit">Déconnexion</button></form>
         </div>
@@ -172,6 +177,144 @@ router.get('/admin/journal', requireAdmin, (req, res) => {
       </table>`,
     })
   );
+});
+
+// --- Mon mot de passe ---
+
+router.get('/admin/mot-de-passe', requireAdmin, (req, res) => {
+  const token = issueCsrfToken(req);
+  const erreur = req.query.erreur ? `<p class="admin-error">${req.query.erreur === 'incorrect' ? 'Mot de passe actuel incorrect.' : req.query.erreur === 'mismatch' ? 'Les deux nouveaux mots de passe ne correspondent pas.' : 'Le nouveau mot de passe doit contenir au moins 8 caractères.'}</p>` : '';
+  const succes = req.query.ok ? '<p style="background:#dff3e3; color:#1e6b34; padding:0.8rem 1rem; border-radius:8px; margin-bottom:1.2rem;">Mot de passe mis à jour.</p>' : '';
+  res.send(
+    adminPage({
+      title: 'Mon mot de passe',
+      body: `
+      <div class="admin-topbar"><h1>Changer mon mot de passe</h1><a class="btn btn-outline-noir" href="/admin/">← Retour</a></div>
+      ${erreur}${succes}
+      <form class="admin-form" method="POST" action="/admin/mot-de-passe" style="max-width:360px;">
+        ${csrfField(token)}
+        <div class="champ">
+          <label for="current_password">Mot de passe actuel</label>
+          <input type="password" id="current_password" name="current_password" required autocomplete="current-password">
+        </div>
+        <div class="champ">
+          <label for="new_password">Nouveau mot de passe (8 caractères minimum)</label>
+          <input type="password" id="new_password" name="new_password" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="champ">
+          <label for="new_password_confirm">Confirmer le nouveau mot de passe</label>
+          <input type="password" id="new_password_confirm" name="new_password_confirm" required minlength="8" autocomplete="new-password">
+        </div>
+        <button class="btn btn-or" type="submit">Mettre à jour</button>
+      </form>`,
+    })
+  );
+});
+
+router.post('/admin/mot-de-passe', requireAdmin, verifyCsrf, (req, res) => {
+  const { current_password, new_password, new_password_confirm } = req.body;
+  const user = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(req.session.admin);
+  if (!user || !bcrypt.compareSync(current_password || '', user.password_hash)) {
+    return res.redirect(302, '/admin/mot-de-passe?erreur=incorrect');
+  }
+  if (!new_password || new_password.length < 8) {
+    return res.redirect(302, '/admin/mot-de-passe?erreur=court');
+  }
+  if (new_password !== new_password_confirm) {
+    return res.redirect(302, '/admin/mot-de-passe?erreur=mismatch');
+  }
+  db.prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?').run(hashPassword(new_password), user.id);
+  logAction(db, { user: user.username, action: 'password_change', ip: clientIp(req) });
+  res.redirect(302, '/admin/mot-de-passe?ok=1');
+});
+
+// --- Gestion des utilisateurs (admin uniquement) ---
+
+router.get('/admin/utilisateurs', requireRole('admin'), (req, res) => {
+  const token = issueCsrfToken(req);
+  const users = db.prepare('SELECT id, username, role, created_at FROM admin_users ORDER BY created_at').all();
+  const erreur = req.query.erreur ? `<p class="admin-error">${req.query.erreur === 'exists' ? 'Cet identifiant existe déjà.' : req.query.erreur === 'last' ? 'Impossible de supprimer le dernier compte administrateur.' : 'Mot de passe trop court (8 caractères minimum).'}</p>` : '';
+
+  const rows = users
+    .map(
+      (u) => `
+      <tr>
+        <td>${u.username}</td>
+        <td>${u.role === 'admin' ? 'Administrateur' : 'Rédacteur'}</td>
+        <td>${u.created_at.slice(0, 10)}</td>
+        <td class="admin-actions">
+          ${u.username === req.session.admin ? '' : `
+          <form style="display:inline" method="POST" action="/admin/utilisateurs/${u.id}/supprimer" onsubmit="return confirm('Supprimer ce compte ?');">
+            ${csrfField(token)}
+            <button type="submit" class="btn-link">Supprimer</button>
+          </form>`}
+        </td>
+      </tr>`
+    )
+    .join('');
+
+  res.send(
+    adminPage({
+      title: 'Utilisateurs',
+      body: `
+      <div class="admin-topbar"><h1>Utilisateurs</h1><a class="btn btn-outline-noir" href="/admin/">← Retour</a></div>
+      ${erreur}
+      <table class="admin-table">
+        <thead><tr><th>Identifiant</th><th>Rôle</th><th>Créé le</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <h2 style="margin-top:2.5rem;">Ajouter un rédacteur</h2>
+      <form class="admin-form" method="POST" action="/admin/utilisateurs" style="max-width:360px;">
+        ${csrfField(token)}
+        <div class="champ">
+          <label for="new_username">Identifiant</label>
+          <input type="text" id="new_username" name="username" required autocomplete="off">
+        </div>
+        <div class="champ">
+          <label for="new_user_password">Mot de passe (8 caractères minimum)</label>
+          <input type="password" id="new_user_password" name="password" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="champ">
+          <label><input type="checkbox" name="role_admin" value="1" style="width:auto; display:inline-block; margin-right:0.4rem;">Compte administrateur (peut gérer les autres comptes)</label>
+        </div>
+        <button class="btn btn-or" type="submit">Créer le compte</button>
+      </form>`,
+    })
+  );
+});
+
+router.post('/admin/utilisateurs', requireRole('admin'), verifyCsrf, (req, res) => {
+  const { username, password, role_admin } = req.body;
+  if (!username || !password || password.length < 8) {
+    return res.redirect(302, '/admin/utilisateurs?erreur=court');
+  }
+  const existing = db.prepare('SELECT id FROM admin_users WHERE username = ?').get(username);
+  if (existing) {
+    return res.redirect(302, '/admin/utilisateurs?erreur=exists');
+  }
+  db.prepare('INSERT INTO admin_users (username, password_hash, role) VALUES (?, ?, ?)').run(
+    username,
+    hashPassword(password),
+    role_admin ? 'admin' : 'writer'
+  );
+  logAction(db, { user: req.session.admin, action: 'create_user', details: username, ip: clientIp(req) });
+  res.redirect(302, '/admin/utilisateurs');
+});
+
+router.post('/admin/utilisateurs/:id/supprimer', requireRole('admin'), verifyCsrf, (req, res) => {
+  const target = db.prepare('SELECT * FROM admin_users WHERE id = ?').get(req.params.id);
+  if (!target) return res.redirect(302, '/admin/utilisateurs');
+  if (target.username === req.session.admin) return res.redirect(302, '/admin/utilisateurs');
+
+  const adminCount = db.prepare("SELECT COUNT(*) c FROM admin_users WHERE role = 'admin'").get().c;
+  if (target.role === 'admin' && adminCount <= 1) {
+    return res.redirect(302, '/admin/utilisateurs?erreur=last');
+  }
+
+  db.prepare('DELETE FROM admin_users WHERE id = ?').run(target.id);
+  logAction(db, { user: req.session.admin, action: 'delete_user', details: target.username, ip: clientIp(req) });
+  res.redirect(302, '/admin/utilisateurs');
 });
 
 // --- Article form (shared by create/edit) ---

@@ -58,6 +58,14 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS admin_users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'writer' CHECK (role IN ('admin','writer')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS admin_audit_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     admin_user TEXT NOT NULL,
@@ -89,5 +97,20 @@ db.exec(`
     VALUES (new.id, new.title, new.excerpt, new.content_text);
   END;
 `);
+
+// Amorçage idempotent : si aucun compte n'existe encore, on crée le premier
+// compte admin à partir des variables d'environnement (ADMIN_USER /
+// ADMIN_PASSWORD_HASH). Ensuite, tous les comptes vivent dans la base et se
+// gèrent depuis l'interface d'administration (changement de mot de passe,
+// ajout de rédacteurs) — les variables d'environnement ne servent plus.
+const userCount = db.prepare('SELECT COUNT(*) c FROM admin_users').get().c;
+if (userCount === 0 && process.env.ADMIN_USER && process.env.ADMIN_PASSWORD_HASH) {
+  db.prepare('INSERT INTO admin_users (username, password_hash, role) VALUES (?, ?, ?)').run(
+    process.env.ADMIN_USER,
+    process.env.ADMIN_PASSWORD_HASH,
+    'admin'
+  );
+  console.log(`[db] Compte admin initial créé depuis les variables d'environnement : ${process.env.ADMIN_USER}`);
+}
 
 export { UPLOAD_DIR };

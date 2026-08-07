@@ -2,10 +2,9 @@ import bcrypt from 'bcryptjs';
 import cookieSession from 'cookie-session';
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
+import { db } from './db.js';
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
-const ADMIN_USER = process.env.ADMIN_USER;
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 
 if (!SESSION_SECRET) {
   console.warn('[auth] SESSION_SECRET is not set — admin login will not work until it is configured.');
@@ -23,14 +22,23 @@ export function sessionMiddleware() {
 }
 
 export function verifyAdminCredentials(username, password) {
-  if (!ADMIN_USER || !ADMIN_PASSWORD_HASH) return false;
-  if (username !== ADMIN_USER) return false;
-  return bcrypt.compareSync(password || '', ADMIN_PASSWORD_HASH);
+  const user = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
+  if (!user) return null;
+  if (!bcrypt.compareSync(password || '', user.password_hash)) return null;
+  return user;
 }
 
 export function requireAdmin(req, res, next) {
   if (req.session && req.session.admin) return next();
   return res.redirect(302, '/admin/login');
+}
+
+export function requireRole(role) {
+  return (req, res, next) => {
+    if (!req.session || !req.session.admin) return res.redirect(302, '/admin/login');
+    if (req.session.role !== role) return res.status(403).send("Action réservée aux administrateurs.");
+    next();
+  };
 }
 
 export const loginLimiter = rateLimit({
@@ -55,4 +63,8 @@ export function verifyCsrf(req, res, next) {
     return res.status(403).send('Session expirée ou jeton de sécurité invalide. Rechargez la page et réessayez.');
   }
   next();
+}
+
+export function hashPassword(password) {
+  return bcrypt.hashSync(password, 10);
 }
