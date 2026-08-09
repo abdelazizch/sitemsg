@@ -4,10 +4,15 @@ const STATIC_URLS = [
   { loc: 'https://ecolemessage.com/formations/tsdi-guercif/', changefreq: 'monthly', priority: '0.8' },
   { loc: 'https://ecolemessage.com/formations/tsge-guercif/', changefreq: 'monthly', priority: '0.8' },
   { loc: 'https://ecolemessage.com/pole-sante/', changefreq: 'monthly', priority: '0.7' },
+  { loc: 'https://ecolemessage.com/pole-sante/aide-soignant-guercif/', changefreq: 'monthly', priority: '0.6' },
+  { loc: 'https://ecolemessage.com/pole-sante/infirmier-polyvalent-guercif/', changefreq: 'monthly', priority: '0.6' },
+  { loc: 'https://ecolemessage.com/pole-sante/prothese-dentaire-guercif/', changefreq: 'monthly', priority: '0.6' },
   { loc: 'https://ecolemessage.com/ecole/', changefreq: 'monthly', priority: '0.6' },
   { loc: 'https://ecolemessage.com/contact/', changefreq: 'yearly', priority: '0.6' },
   { loc: 'https://ecolemessage.com/admission/', changefreq: 'yearly', priority: '0.7' },
   { loc: 'https://ecolemessage.com/actualites/', changefreq: 'weekly', priority: '0.7' },
+  { loc: 'https://ecolemessage.com/mentions-legales/', changefreq: 'yearly', priority: '0.3' },
+  { loc: 'https://ecolemessage.com/politique-de-confidentialite/', changefreq: 'yearly', priority: '0.3' },
 ];
 
 export function sitemapHandler(db) {
