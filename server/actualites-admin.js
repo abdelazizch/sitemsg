@@ -257,7 +257,7 @@ router.get('/admin/utilisateurs', requireRole('admin'), (req, res) => {
     adminPage({
       title: 'Utilisateurs',
       body: `
-      <div class="admin-topbar"><h1>Utilisateurs</h1><a class="btn btn-outline-noir" href="/admin/">← Retour</a></div>
+      <div class="admin-topbar"><h1>Utilisateurs</h1><div style="display:flex; gap:0.5rem;"><a class="btn btn-outline-noir" href="/admin/mot-de-passe">Mon mot de passe</a><a class="btn btn-outline-noir" href="/admin/">← Retour</a></div></div>
       ${erreur}
       <table class="admin-table">
         <thead><tr><th>Identifiant</th><th>Rôle</th><th>Créé le</th><th>Actions</th></tr></thead>
