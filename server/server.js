@@ -36,7 +36,7 @@ function formLimiter(redirectTo) {
 }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const TO_EMAIL = process.env.TO_EMAIL || 'ecolelemessage@gmail.com';
+const TO_EMAIL = process.env.TO_EMAIL || 'ecolemsge@gmail.com';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 
 async function sendEmail({ subject, pdfBuffer, filename }) {
