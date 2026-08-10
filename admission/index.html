@@ -89,7 +89,11 @@
       <p id="formulaireErreur" class="a-confirmer" style="display:none; margin-bottom:1.5rem;"></p>
 
       <form class="form-contact" id="formulaireAdmission" action="/api/admission" method="POST">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <div class="champ-piege" aria-hidden="true">
+          <label for="siteWeb">Site web</label>
+          <input type="text" id="siteWeb" name="siteWeb" tabindex="-1" autocomplete="off">
+        </div>
+        <input type="hidden" name="_ts" id="admissionTs">
         <div class="champ">
           <label for="nom">Nom <span style="font-weight:400; color:var(--gris-chaud);" lang="ar" dir="rtl">/ الاسم العائلي</span></label>
           <input type="text" id="nom" name="nom" required autocomplete="family-name">
@@ -202,6 +206,7 @@
 
 <script>
   document.getElementById('annee').textContent = new Date().getFullYear();
+  document.getElementById('admissionTs').value = Date.now();
   var menuToggle = document.getElementById('menuToggle');
   var menuMobile = document.getElementById('menuMobile');
   menuToggle.addEventListener('click', function () {

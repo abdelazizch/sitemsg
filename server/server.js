@@ -65,9 +65,18 @@ async function sendEmail({ subject, pdfBuffer, filename }) {
   }
 }
 
+const MIN_SUBMIT_MS = 3000;
+
+function isBotSubmission(body) {
+  if (body.siteWeb) return true;
+  const ts = Number(body._ts);
+  if (!ts || Date.now() - ts < MIN_SUBMIT_MS) return true;
+  return false;
+}
+
 app.post('/api/contact', formLimiter('/contact/'), async (req, res) => {
   try {
-    if (req.body._honey) return res.redirect(303, '/contact/merci/');
+    if (isBotSubmission(req.body)) return res.redirect(303, '/contact/merci/');
     const html = buildContactHtml(req.body);
     const pdf = await renderPdf(html);
     await sendEmail({
@@ -84,7 +93,7 @@ app.post('/api/contact', formLimiter('/contact/'), async (req, res) => {
 
 app.post('/api/admission', formLimiter('/admission/'), async (req, res) => {
   try {
-    if (req.body._honey) return res.redirect(303, '/admission/merci/');
+    if (isBotSubmission(req.body)) return res.redirect(303, '/admission/merci/');
     const html = buildAdmissionHtml(req.body);
     const pdf = await renderPdf(html);
     await sendEmail({
